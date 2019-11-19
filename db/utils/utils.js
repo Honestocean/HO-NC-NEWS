@@ -27,7 +27,6 @@ const formatComments = (comments, articleRef) => {
     format[i]["author"] = format[i]["created_by"];
     delete format[i]["created_by"];
   }
-  console.log(format);
   return format;
 };
 
