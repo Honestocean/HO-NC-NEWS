@@ -36,6 +36,11 @@ exports.seed = function(knex) {
       // console.log(articles, "we seeded the articles");
       let newRefObj = makeRefObj(articles, "title", "article_id");
       let formattedComments = formatComments(commentData, newRefObj);
-      return knex("comments").insert(formattedComments);
+      return knex("comments")
+        .insert(formattedComments)
+        .returning("*");
+    })
+    .then(comments => {
+      // console.log(comments);
     });
 };

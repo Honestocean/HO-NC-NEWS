@@ -22,10 +22,45 @@ const selectArticleById = id => {
 };
 
 const updateArticleById = (id, body) => {
+  console.log("in the model");
   return connection("articles")
     .where("article_id", id)
     .increment("votes", body.inc_votes)
     .returning("*");
 };
 
-module.exports = { selectArticleById, updateArticleById };
+const addCommentsByArticle = (id, body) => {
+  console.log("in the model");
+
+  const commentObj = {
+    comment_id: 100,
+    author: body.username,
+    article_id: id,
+    votes: 0,
+    created_at: new Date(),
+    body: body.body
+  };
+
+  return connection
+
+    .insert(commentObj)
+    .into("comments")
+    .returning("*");
+};
+
+const selectCommentsByArticle = (id, { sort_by }, { order }) => {
+  console.log("in the model");
+  console.log(id);
+  return connection
+    .select("*")
+    .from("comments")
+    .where("article_id", id)
+    .orderBy(sort_by || "created_at", order || "desc");
+};
+
+module.exports = {
+  selectArticleById,
+  updateArticleById,
+  addCommentsByArticle,
+  selectCommentsByArticle
+};
