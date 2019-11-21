@@ -41,6 +41,10 @@ exports.seed = function(knex) {
         .returning("*");
     })
     .then(comments => {
-      // console.log(comments);
+      for (let i = 0; i < comments.length; i++) {
+        if (comments[i].article_id === 29) {
+          console.log(comments[i]);
+        }
+      }
     });
 };

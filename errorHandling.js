@@ -1,5 +1,5 @@
 const handleCustomErrors = (err, req, res, next) => {
-  console.log(err, "in the custom err");
+  // console.log(err, "in the custom err");
   if (err.status) {
     res.status(err.status).send({ msg: err.msg });
   } else {
@@ -8,7 +8,7 @@ const handleCustomErrors = (err, req, res, next) => {
 };
 
 const handlePSQLErrors = (err, req, res, next) => {
-  console.log(err, "in the PSQL");
+  // console.log(err, "in the PSQL");
   const psqlErrors = {
     "22P02": {
       status: 400,
@@ -20,7 +20,7 @@ const handlePSQLErrors = (err, req, res, next) => {
     },
     "42703": {
       status: 400,
-      msg: "non existent id input when fetching data"
+      msg: "non existent id or bad query input when fetching data"
     }
   };
 

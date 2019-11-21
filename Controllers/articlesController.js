@@ -2,8 +2,22 @@ const {
   selectArticleById,
   updateArticleById,
   addCommentsByArticle,
-  selectCommentsByArticle
+  selectCommentsByArticle,
+  selectAllArticles
 } = require("../Models/articlesModel");
+
+exports.getAllArticles = (req, res, next) => {
+  console.log("in teh controller");
+  const sort_by = req.query.sort_by;
+  const order = req.query.order;
+  const author = req.query.author;
+  const topic = req.query.topic;
+  selectAllArticles(sort_by, order, author, topic)
+    .then(articles => {
+      res.status(200).send({ articles });
+    })
+    .catch(next);
+};
 
 exports.getArticleById = (req, res, next) => {
   id = req.params.articleid;
@@ -15,8 +29,6 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.patchArticleById = (req, res, next) => {
-  console.log("in the controller");
-  console.log(req["body"]);
   const id = req.params.articleid;
   const body = req.body;
   if ("inc_votes" in req.body !== true) {
@@ -33,7 +45,6 @@ exports.patchArticleById = (req, res, next) => {
 exports.postCommentsByArticle = (req, res, next) => {
   const id = req.params.articleid;
   const body = req.body;
-  console.log(body);
   if ("username" in req.body !== true || "body" in req.body !== true) {
     next({ msg: "invalid body of submitted post", status: "400" });
   } else {
@@ -49,9 +60,8 @@ exports.getCommentsByArticle = (req, res, next) => {
   const id = req.params.articleid;
   selectCommentsByArticle(id, req.query, req.query)
     .then(comments => {
-      console.log(comments);
       if (comments.length === 0) {
-        next({ msg: "id not found", status: 404 });
+        next({ msg: "id not found or no comments attached", status: 404 });
       } else {
         res.status(200).send(comments);
       }

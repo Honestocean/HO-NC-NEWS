@@ -1,7 +1,27 @@
 const connection = require("../db/connection");
 
+const selectAllArticles = (sort_by, order, author, topic) => {
+  return connection
+    .select("*")
+    .from("articles")
+    .orderBy(sort_by || "created_at", order || "desc")
+    .modify(query => {
+      if (author) query.where({ author });
+      if (topic) query.where({ topic });
+    })
+    .then(articles => {
+      if (articles.length === 0) {
+        return Promise.reject({
+          msg: "bad query, not found in database",
+          status: 404
+        });
+      } else {
+        return articles;
+      }
+    });
+};
+
 const selectArticleById = id => {
-  console.log(id);
   return connection
     .select("articles.*")
     .from("articles")
@@ -22,7 +42,6 @@ const selectArticleById = id => {
 };
 
 const updateArticleById = (id, body) => {
-  console.log("in the model");
   return connection("articles")
     .where("article_id", id)
     .increment("votes", body.inc_votes)
@@ -30,8 +49,6 @@ const updateArticleById = (id, body) => {
 };
 
 const addCommentsByArticle = (id, body) => {
-  console.log("in the model");
-
   const commentObj = {
     comment_id: 100,
     author: body.username,
@@ -49,8 +66,6 @@ const addCommentsByArticle = (id, body) => {
 };
 
 const selectCommentsByArticle = (id, { sort_by }, { order }) => {
-  console.log("in the model");
-  console.log(id);
   return connection
     .select("*")
     .from("comments")
@@ -62,5 +77,6 @@ module.exports = {
   selectArticleById,
   updateArticleById,
   addCommentsByArticle,
-  selectCommentsByArticle
+  selectCommentsByArticle,
+  selectAllArticles
 };
