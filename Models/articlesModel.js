@@ -1,22 +1,75 @@
 const connection = require("../db/connection");
 
 const selectAllArticles = (sort_by, order, author, topic) => {
+  console.log(author, "1");
   return connection
-    .select("*")
+    .select("articles.*")
     .from("articles")
+    .leftJoin("comments", "articles.article_id", "=", "comments.article_id")
+    .count("comment_id AS comment_count")
+    .groupBy("articles.article_id")
     .orderBy(sort_by || "created_at", order || "desc")
     .modify(query => {
-      if (author) query.where({ author });
+      if (author) query.where({ "articles.author": author });
       if (topic) query.where({ topic });
     })
     .then(articles => {
+      // check topic/author exist
+
+      const topicQuery = topic
+        ? checkIfQueriesExist(topic, "slug", "topics")
+        : undefined;
+
+      const authorQuery = author
+        ? checkIfQueriesExist(author, "username", "users")
+        : undefined;
+
+      console.log(topicQuery, 2);
+
+      return Promise.all([authorQuery, topicQuery, articles]);
+    })
+    .then(([authorQuery, topicQuery, articles]) => {
+      console.log(authorQuery);
+      console.log(topicQuery);
+      console.log(articles);
+
+      console.log("got to then");
       if (articles.length === 0) {
-        return Promise.reject({
-          msg: "bad query, not found in database",
-          status: 404
-        });
+        if (topicQuery === false) {
+          return Promise.reject({
+            msg: "bad query, topic not found in database",
+            status: 404
+          });
+        } else if (topicQuery === true) {
+          return articles;
+        } else if (authorQuery === false) {
+          return Promise.reject({
+            msg: "bad query, author not found in database",
+            status: 404
+          });
+        } else {
+          return articles;
+        }
       } else {
         return articles;
+      }
+    });
+};
+
+const checkIfQueriesExist = (query, column, table) => {
+  console.log(query, 1.5);
+  return connection
+    .select("*")
+    .from(table)
+    .where(column, query)
+    .returning("*")
+    .then(row => {
+      console.log("in the then");
+      console.log(row, 1);
+      if (row.length === 0) {
+        return false;
+      } else {
+        return true;
       }
     });
 };
@@ -36,7 +89,7 @@ const selectArticleById = id => {
           status: 404
         });
       } else {
-        return article;
+        return article[0];
       }
     });
 };
@@ -44,7 +97,7 @@ const selectArticleById = id => {
 const updateArticleById = (id, body) => {
   return connection("articles")
     .where("article_id", id)
-    .increment("votes", body.inc_votes)
+    .increment("votes", body.inc_votes || 0)
     .returning("*");
 };
 

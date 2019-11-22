@@ -4,7 +4,7 @@ exports.getUserById = (req, res, next) => {
   username = req.params.username;
   selectUserById(username)
     .then(user => {
-      res.status(200).send({ user });
+      res.status(200).send({ user: user[0] });
     })
     .catch(next);
 };

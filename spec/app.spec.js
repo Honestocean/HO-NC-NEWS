@@ -41,12 +41,8 @@ describe("/api", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body).to.be.an("object");
-          expect(body.user).to.be.an("array");
-          expect(body.user[0]).to.contain.keys(
-            "username",
-            "avatar_url",
-            "name"
-          );
+          expect(body.user).to.be.an("object");
+          expect(body.user).to.contain.keys("username", "avatar_url", "name");
         });
     });
 
@@ -69,8 +65,8 @@ describe("/api", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body).to.be.an("object");
-          expect(body.article).to.be.an("array");
-          expect(body.article[0]).to.contain.keys(
+          expect(body.article).to.be.an("object");
+          expect(body.article).to.contain.keys(
             "author",
             "title",
             "article_id",
@@ -101,14 +97,14 @@ describe("/api", () => {
           expect(response.text).to.eql("invalid id or body input");
         });
     });
-    it("patch:202, respond with inc_votes and newVote and an updated article", () => {
+    it("patch:200, respond with inc_votes and newVote and an updated article", () => {
       return request(app)
         .patch("/api/articles/2")
         .send({ inc_votes: 1 })
-        .expect(202)
+        .expect(200)
         .then(({ body }) => {
-          expect(body.article).to.be.an("array");
-          expect(body.article[0]).to.contain.keys(
+          expect(body.article).to.be.an("object");
+          expect(body.article).to.contain.keys(
             "article_id",
             "title",
             "body",
@@ -119,13 +115,14 @@ describe("/api", () => {
           );
         });
     });
-    it("patch:400, body submitted without 'inc_votes'responds with unmodified article", () => {
+    it("patch:200, body submitted without 'inc_votes'responds with unmodified article", () => {
       return request(app)
         .patch("/api/articles/2")
         .send({})
-        .expect(400)
-        .then(response => {
-          expect(response.body.msg).to.eql("invalid body submitted");
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article).to.be.an("object");
+          expect(body.article.votes).to.eql(null);
         });
     });
     it("patch:400, invalid in_votes responds with 400 and error message", () => {
@@ -154,10 +151,9 @@ describe("/api", () => {
           body: "an amazing comment"
         })
         .expect(201)
-        .then(response => {
-          expect(response.body).to.be.an("object");
-          expect(response.body.comment).to.be.an("array");
-          expect(response.body.comment[0]).to.contain.keys(
+        .then(({ body }) => {
+          expect(body.comment).to.be.an("object");
+          expect(body.comment).to.contain.keys(
             "comment_id",
             "author",
             "article_id",
@@ -210,10 +206,10 @@ describe("/api", () => {
       return request(app)
         .get("/api/articles/1/comments")
         .expect(200)
-        .then(response => {
-          expect(response.body).to.be.an("array");
-          expect(response.body[0]).to.be.an("object");
-          expect(response.body[0]).to.contain.keys(
+        .then(({ body }) => {
+          expect(body).to.be.an("object");
+          expect(body.comments).to.be.an("array");
+          expect(body.comments[0]).to.contain.keys(
             "comment_id",
             "votes",
             "created_at",
@@ -226,8 +222,8 @@ describe("/api", () => {
       return request(app)
         .get("/api/articles/1/comments?sort_by=votes")
         .expect(200)
-        .then(response => {
-          expect(response.body).to.be.sortedBy("votes", {
+        .then(({ body }) => {
+          expect(body.comments).to.be.sortedBy("votes", {
             descending: true
           });
         });
@@ -236,8 +232,8 @@ describe("/api", () => {
       return request(app)
         .get("/api/articles/1/comments?sort_by=votes&&order=desc")
         .expect(200)
-        .then(response => {
-          expect(response.body).to.be.sortedBy("votes", {
+        .then(({ body }) => {
+          expect(body.comments).to.be.sortedBy("votes", {
             descending: true
           });
         });
@@ -352,25 +348,37 @@ describe("/api", () => {
           expect(response.body.articles).to.be.an("array");
         });
     });
-    it("get:404, order has invalid input, send bad query error", () => {
+    it("get:404, author has invalid input, send bad query error", () => {
       return request(app)
         .get("/api/articles?author=simon")
         .expect(404)
         .then(response => {
           expect(response.body.msg).to.be.eql(
-            "bad query, not found in database"
+            "bad query, author not found in database"
           );
         });
     });
-    it("get:404, order has invalid input, send bad query error", () => {
+    it("get:404, topic has invalid input, send bad query error", () => {
       return request(app)
         .get("/api/articles?topic=simon")
         .expect(404)
-        .then(response => {
-          expect(response.body.msg).to.be.eql(
-            "bad query, not found in database"
-          );
+        .then(({ body }) => {
+          expect(body.msg).to.be.eql("bad query, topic not found in database");
         });
+    });
+    it("get:404, author has invalid input, send bad query error", () => {
+      return request(app)
+        .get("/api/articles?author=simon")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).to.be.eql("bad query, author not found in database");
+        });
+    });
+    it("get:200, author has valid input, but no articles", () => {
+      return request(app)
+        .get("/api/articles?author=lurker")
+        .expect(200)
+        .then(({ body }) => {});
     });
   });
 
@@ -380,9 +388,9 @@ describe("/api", () => {
         .patch("/api/comments/1")
         .send({ inc_votes: 1 })
         .expect(200)
-        .then(response => {
-          expect(response.body.comment).to.be.an("array");
-          expect(response.body.comment[0]).to.contain.keys(
+        .then(({ body }) => {
+          expect(body.comment).to.be.an("object");
+          expect(body.comment).to.contain.keys(
             "comment_id",
             "author",
             "article_id",
@@ -396,9 +404,10 @@ describe("/api", () => {
       return request(app)
         .patch("/api/comments/2")
         .send({})
-        .expect(400)
-        .then(response => {
-          expect(response.body.msg).to.eql("invalid body submitted");
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comment).to.be.an("object");
+          expect(body.comment.votes).to.eql(15);
         });
     });
     it("patch:400, invalid in_votes responds with 400 and error message", () => {
@@ -417,6 +426,15 @@ describe("/api", () => {
         .expect(400)
         .then(response => {
           expect(response.text).to.eql("invalid id or body input");
+        });
+    });
+    it("patch: 404, unused id given, send back error message", () => {
+      return request(app)
+        .patch("/api/comments/999")
+        .send({ inc_votes: 1 })
+        .expect(404)
+        .then(response => {
+          expect(response.body.msg).to.eql("comment id not found");
         });
     });
     it("delete:204, deletes given comment via Id, returns no content", () => {

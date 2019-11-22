@@ -1,5 +1,4 @@
 const handleCustomErrors = (err, req, res, next) => {
-  // console.log(err, "in the custom err");
   if (err.status) {
     res.status(err.status).send({ msg: err.msg });
   } else {
@@ -32,8 +31,13 @@ const handlePSQLErrors = (err, req, res, next) => {
   if (thisError) {
     res.status(thisError.status).send(thisError.msg);
   } else {
-    next(err);
+    console.log(err);
+    res.sendStatus(500);
   }
 };
 
-module.exports = { handleCustomErrors, handlePSQLErrors };
+const send405Errors = (req, res, next) => {
+  res.status(405).send({ msg: "Method Not Found" });
+};
+
+module.exports = { handleCustomErrors, handlePSQLErrors, send405Errors };
