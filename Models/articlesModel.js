@@ -1,7 +1,6 @@
 const connection = require("../db/connection");
 
 const selectAllArticles = (sort_by, order, author, topic) => {
-  console.log(author, "1");
   return connection
     .select("articles.*")
     .from("articles")
@@ -24,16 +23,9 @@ const selectAllArticles = (sort_by, order, author, topic) => {
         ? checkIfQueriesExist(author, "username", "users")
         : undefined;
 
-      console.log(topicQuery, 2);
-
       return Promise.all([authorQuery, topicQuery, articles]);
     })
     .then(([authorQuery, topicQuery, articles]) => {
-      console.log(authorQuery);
-      console.log(topicQuery);
-      console.log(articles);
-
-      console.log("got to then");
       if (articles.length === 0) {
         if (topicQuery === false) {
           return Promise.reject({
@@ -57,15 +49,12 @@ const selectAllArticles = (sort_by, order, author, topic) => {
 };
 
 const checkIfQueriesExist = (query, column, table) => {
-  console.log(query, 1.5);
   return connection
     .select("*")
     .from(table)
     .where(column, query)
     .returning("*")
     .then(row => {
-      console.log("in the then");
-      console.log(row, 1);
       if (row.length === 0) {
         return false;
       } else {
