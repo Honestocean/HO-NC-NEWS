@@ -122,7 +122,7 @@ describe("/api", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body.article).to.be.an("object");
-          expect(body.article.votes).to.eql(null);
+          expect(body.article.votes).to.eql(0);
         });
     });
     it("patch:400, invalid in_votes responds with 400 and error message", () => {
@@ -218,6 +218,7 @@ describe("/api", () => {
           );
         });
     });
+
     it("get:200, returns an array sorted by any valid column input", () => {
       return request(app)
         .get("/api/articles/1/comments?sort_by=votes")
@@ -244,7 +245,7 @@ describe("/api", () => {
         .expect(404)
         .then(response => {
           expect(response.body.msg).to.equal(
-            "id not found or no comments attached"
+            "article does not exist, invalid id"
           );
         });
     });
@@ -256,14 +257,12 @@ describe("/api", () => {
           expect(response.text).to.equal("invalid id or body input");
         });
     });
-    it("get:404, valid id but no comments, return empty array", () => {
+    it("get:200, valid id but no comments, return empty array", () => {
       return request(app)
         .get("/api/articles/2/comments")
-        .expect(404)
+        .expect(200)
         .then(response => {
-          expect(response.body.msg).to.be.equal(
-            "id not found or no comments attached"
-          );
+          expect(response.body.comments).to.eql([]);
         });
     });
     it("get:200, return an array of article objects", () => {
@@ -407,7 +406,7 @@ describe("/api", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body.comment).to.be.an("object");
-          expect(body.comment.votes).to.eql(15);
+          expect(body.comment.votes).to.eql(14);
         });
     });
     it("patch:400, invalid in_votes responds with 400 and error message", () => {
@@ -458,5 +457,8 @@ describe("/api", () => {
           expect(response.text).to.eql("invalid id or body input");
         });
     });
+  });
+  describe("", () => {
+    it("", () => {});
   });
 });

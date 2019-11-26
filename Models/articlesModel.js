@@ -108,11 +108,31 @@ const addCommentsByArticle = (id, body) => {
 };
 
 const selectCommentsByArticle = (id, { sort_by }, { order }) => {
-  return connection
+  const comments = connection
     .select("*")
     .from("comments")
     .where("article_id", id)
     .orderBy(sort_by || "created_at", order || "desc");
+
+  return Promise.all([comments, checkIfArticleExists(id)]).then(arr => {
+    if (arr[0].length === 0 && arr[1].legnth === 1) {
+      return arr[0];
+    } else if (arr[0].length === 0 && arr[1].length === 0) {
+      return Promise.reject({
+        msg: "article does not exist, invalid id",
+        status: 404
+      });
+    } else {
+      return arr[0];
+    }
+  });
+};
+
+const checkIfArticleExists = id => {
+  return connection
+    .select("*")
+    .from("articles")
+    .where("article_id", id);
 };
 
 module.exports = {

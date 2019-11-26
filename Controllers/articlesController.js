@@ -59,11 +59,7 @@ exports.getCommentsByArticle = (req, res, next) => {
   const id = req.params.articleid;
   selectCommentsByArticle(id, req.query, req.query)
     .then(comments => {
-      if (comments.length === 0) {
-        next({ msg: "id not found or no comments attached", status: 404 });
-      } else {
-        res.status(200).send({ comments });
-      }
+      res.status(200).send({ comments });
     })
     .catch(next);
 };
