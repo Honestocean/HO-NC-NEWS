@@ -27,24 +27,15 @@ exports.seed = function(knex) {
         .returning("*");
     })
     .then(users => {
-      // console.log(users, "We seeded the users");
       return knex("articles")
         .insert(formatDates(articleData))
         .returning("*");
     })
     .then(articles => {
-      // console.log(articles, "we seeded the articles");
       let newRefObj = makeRefObj(articles, "title", "article_id");
       let formattedComments = formatComments(commentData, newRefObj);
       return knex("comments")
         .insert(formattedComments)
         .returning("*");
-    })
-    .then(comments => {
-      for (let i = 0; i < comments.length; i++) {
-        if (comments[i].article_id === 29) {
-          console.log(comments[i]);
-        }
-      }
     });
 };

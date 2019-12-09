@@ -9,6 +9,13 @@
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
+  "GET /api/users": {
+    "description": "serves an array of all users",
+    "queries": [],
+    "exampleResponse": {
+      "users": [{ "username": "", "avatar_url": "", "name": "" }]
+    }
+  },
   "GET /api/articles": {
     "description": "serves an array of all topics",
     "queries": ["author", "topic", "sort_by", "order"],
@@ -22,6 +29,50 @@
           "created_at": 1527695953341
         }
       ]
+    }
+  },
+  "PATCH /api/articles": {
+    "description": "updates the selected article with a vote and returns the article object",
+    "queries": [],
+    "exampleResponse": {
+      "articles": {
+        "article_id": "1",
+        "title": "any title",
+        "votes": "1",
+        "author": "weegembump",
+        "topic": "one of the give topics",
+        "body": "Text from the article..",
+        "created_at": 1527695953341
+      }
+    }
+  },
+  "POST /api/articles/2/comments": {
+    "description": "Posts a comment to an article via its ID",
+    "queries": [],
+    "exampleResponse": {
+      "comment": {
+        "article_id": "1",
+        "title": "any title",
+        "votes": "1",
+        "author": "weegembump",
+        "topic": "one of the give topics",
+        "body": "Text from the article..",
+        "created_at": 1527695953341
+      }
+    }
+  },
+  "GET /api/commments/:id": {
+    "description": "serves up an object containing a single comment",
+    "queries": [],
+    "exampleResponse": {
+      "comment": {
+        "comment_id": "2",
+        "author": "Lurker",
+        "article_id": "3",
+        "votes": "4",
+        "created_at": "",
+        "body": ""
+      }
     }
   }
 }
