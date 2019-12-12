@@ -92,11 +92,8 @@ const updateArticleById = (id, body) => {
 
 const addCommentsByArticle = (id, body) => {
   const commentObj = {
-    comment_id: 100,
     author: body.username,
     article_id: id,
-    votes: 0,
-    created_at: new Date(),
     body: body.body
   };
 
